@@ -1,0 +1,13 @@
+# 本地工作/私密
+.workbuddy/
+tools/
+*.pdf
+
+# 单文件切片预览版（非发布目标）
+card-dictionary.html
+
+# 原始 PNG（发布用压缩后的 WebP）
+assets/pages/*.png
+
+# 本地服务器日志
+.server.log

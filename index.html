@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>English for Everyone · 卡片词典</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">📖 <span>English for Everyone</span> · 卡片词典</div>
+  <div class="controls">
+    <div class="search-wrap">
+      <input id="search" type="search" placeholder="搜索单词 / 音标 / 词性…  (按 / 聚焦)" autocomplete="off">
+    </div>
+    <select id="theme" title="按主题筛选">
+      <option value="">全部主题</option>
+    </select>
+    <span id="counter" class="counter">—</span>
+  </div>
+</header>
+
+<main id="deck" class="deck"></main>
+
+<div id="empty" class="empty" hidden>没有匹配的卡片</div>
+
+<nav class="pager">
+  <button id="prev" title="上一张 (↑)">↑</button>
+  <span id="pos" class="pos">0 / 0</span>
+  <button id="next" title="下一张 (↓)">↓</button>
+</nav>
+
+<div id="lightbox" class="lightbox" hidden>
+  <img id="lightbox-img" src="" alt="放大图">
+  <button id="lightbox-close" title="关闭 (Esc)">✕</button>
+</div>
+
+<script src="data/pages.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
