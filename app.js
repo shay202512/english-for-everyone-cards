@@ -14,6 +14,19 @@
   const lightboxImg = document.getElementById("lightbox-img");
   const lightboxClose = document.getElementById("lightbox-close");
 
+  // drill (flash-card) mode
+  const drillBtn = document.getElementById("drill");
+  const shuffleBtn = document.getElementById("shuffle");
+  const drillMode = document.getElementById("drill-mode");
+  const drillClose = document.getElementById("drill-close");
+  const drillTitle = document.getElementById("drill-title");
+  const drillPage = document.getElementById("drill-page");
+  const drillPos = document.getElementById("drill-pos");
+  const drillImg = document.getElementById("drill-img");
+  const drillWords = document.getElementById("drill-words");
+  const drillSpeak = document.getElementById("drill-speak");
+  const drillNext = document.getElementById("drill-next");
+
   let query = "";
   let themeFilter = "";
   let visible = [];      // currently shown page objects, in order
@@ -79,8 +92,8 @@
   }
 
   // ---- render ----
-  function cardHTML(p, q) {
-    const words = p.words.map(w => {
+  function wordsHTML(p, q) {
+    const inner = p.words.map(w => {
       const hit = q && wordMatches(w, q) ? " hit" : "";
       const ipa = w.ipa ? `<span class="ipa">/${esc(w.ipa)}/</span>` : "";
       const pos = w.pos ? `<span class="pos">${esc(w.pos)}</span>` : "";
@@ -91,6 +104,10 @@
         ${ipa}${pos}${def ? `<span style="flex-basis:100%"></span>${def}` : ""}
       </div>`;
     }).join("");
+    return inner || '<div class="word"><span class="w" style="color:var(--muted)">（本页未解析到词条）</span></div>';
+  }
+
+  function cardHTML(p, q) {
     return `<section class="card" data-page="${p.page}">
       <div class="card-head">
         <h2>${esc(p.title || "未命名")}</h2>
@@ -98,7 +115,7 @@
       </div>
       <div class="card-body">
         <div class="illus"><img loading="lazy" src="${esc(p.image)}" alt="${esc(p.title || "")}" onerror="this.style.display='none';this.nextElementSibling||(this.insertAdjacentHTML('afterend','<span style=\'color:var(--muted);padding:20px\'>图片加载失败</span>'))"></div>
-        <div class="words">${words || '<div class="word"><span class="w" style="color:var(--muted)">（本页未解析到词条）</span></div>'}</div>
+        <div class="words">${wordsHTML(p, q)}</div>
       </div>
     </section>`;
   }
@@ -137,6 +154,55 @@
   prevBtn.addEventListener("click", () => goto(current - 1));
   nextBtn.addEventListener("click", () => goto(current + 1));
 
+  // ---- random jump (browse mode) ----
+  function shuffle() {
+    if (!visible.length) return;
+    let idx;
+    do { idx = Math.floor(Math.random() * visible.length); }
+    while (visible.length > 1 && idx === current);
+    goto(idx);
+  }
+  shuffleBtn.addEventListener("click", shuffle);
+
+  // ---- flash-card / drill mode ----
+  let lastDrill = -1;
+  let drillCount = 0;
+  function drawDrill() {
+    if (!visible.length) return;
+    let idx;
+    do { idx = Math.floor(Math.random() * visible.length); }
+    while (visible.length > 1 && idx === lastDrill);
+    lastDrill = idx;
+    drillCount++;
+    const p = visible[idx];
+    drillTitle.textContent = p.title || "未命名";
+    drillPage.textContent = "p." + p.page;
+    drillPos.textContent = `第 ${drillCount} 抽`;
+    drillImg.src = p.image;
+    drillImg.alt = p.title || "";
+    drillWords.innerHTML = wordsHTML(p, "");
+  }
+  function openDrill() {
+    if (!visible.length) return;
+    drillCount = 0;
+    drawDrill();
+    drillMode.hidden = false;
+  }
+  function closeDrill() { drillMode.hidden = true; }
+
+  drillBtn.addEventListener("click", openDrill);
+  drillClose.addEventListener("click", closeDrill);
+  drillNext.addEventListener("click", drawDrill);
+  drillSpeak.addEventListener("click", () => {
+    const p = visible[lastDrill];
+    if (p && p.words.length) speak(p.words.map(w => w.word).join(", "));
+  });
+  drillMode.addEventListener("click", e => {
+    const sp = e.target.closest(".speak");
+    if (sp) { speak(sp.dataset.word); return; }
+    if (e.target === drillMode) closeDrill();
+  });
+
   deck.addEventListener("click", e => {
     const sp = e.target.closest(".speak");
     if (sp) { speak(sp.dataset.word); return; }
@@ -150,6 +216,13 @@
   lightbox.addEventListener("click", e => { if (e.target === lightbox) lightbox.hidden = true; });
 
   document.addEventListener("keydown", e => {
+    // flash-card (drill) mode takes over the keyboard
+    if (!drillMode.hidden) {
+      if (e.key === "Escape") { closeDrill(); }
+      else if (e.key === " " || e.key === "Enter" || e.key === "ArrowRight") { e.preventDefault(); drawDrill(); }
+      else if (e.key === "ArrowLeft") { e.preventDefault(); }
+      return;
+    }
     if (e.target === searchEl) {
       if (e.key === "Escape") { searchEl.value = ""; query = ""; render(); }
       return;
@@ -157,6 +230,8 @@
     if (e.key === "/") { e.preventDefault(); searchEl.focus(); }
     else if (e.key === "ArrowDown" || e.key === "ArrowRight") { e.preventDefault(); goto(current + 1); }
     else if (e.key === "ArrowUp" || e.key === "ArrowLeft") { e.preventDefault(); goto(current - 1); }
+    else if (e.key === "r" || e.key === "R") { e.preventDefault(); shuffle(); }
+    else if (e.key === "d" || e.key === "D") { e.preventDefault(); openDrill(); }
     else if (e.key === "Escape") { lightbox.hidden = true; }
   });
 
