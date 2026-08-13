@@ -84,7 +84,7 @@ body{
 .word .ipa{font-family:"Charis SIL","Doulos SIL",Georgia,serif;color:var(--accent);font-size:15px}
 .word .pos{margin-left:auto;font-size:11px;color:var(--muted);
   border:1px solid var(--line);border-radius:6px;padding:1px 7px;text-transform:uppercase;letter-spacing:.04em}
-.word .def{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
+.word .def{display:block;font-size:12.5px;color:var(--muted);margin-top:3px;margin-left:46px;line-height:1.55;word-break:break-word}
 
 .empty{text-align:center;color:var(--muted);padding:60px 20px;font-size:15px}
 
