@@ -97,11 +97,14 @@
       const hit = q && wordMatches(w, q) ? " hit" : "";
       const ipa = w.ipa ? `<span class="ipa">/${esc(w.ipa)}/</span>` : "";
       const pos = w.pos ? `<span class="pos">${esc(w.pos)}</span>` : "";
-      const def = w.definition ? `<span class="def">${esc(w.definition)}</span>` : "";
+      const def = w.definition ? `<div class="def">${esc(w.definition)}</div>` : "";
       return `<div class="word${hit}">
-        <button class="speak" data-word="${esc(w.word)}" title="朗读">🔊</button>
-        <span class="w">${esc(w.word)}</span>
-        ${ipa}${pos}${def ? `<span style="flex-basis:100%"></span>${def}` : ""}
+        <div class="word-row">
+          <button class="speak" data-word="${esc(w.word)}" title="朗读">🔊</button>
+          <span class="w">${esc(w.word)}</span>
+          ${ipa}${pos}
+        </div>
+        ${def}
       </div>`;
     }).join("");
     return inner || '<div class="word"><span class="w" style="color:var(--muted)">（本页未解析到词条）</span></div>';
